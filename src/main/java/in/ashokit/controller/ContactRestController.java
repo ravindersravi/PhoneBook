@@ -2,44 +2,48 @@ package in.ashokit.controller;
 
 import java.util.List;
 
+import in.ashokit.service.ContactServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import in.ashokit.entiry.Contact;
 import in.ashokit.service.ContactService;
 import net.bytebuddy.asm.Advice.Return;
 
 @RestController
+@RequestMapping("/demo")
 public class ContactRestController {
-	@Autowired
-	private ContactService contactService;
-	@PostMapping("/contact")
-	public String upsert (@RequestBody Contact contact){
-	
-		return contactService.upsert(contact);}
-	
-@GetMapping("/contacts")
-public ResponseEntity<List<Contact>> getAllContacts(){
-	return contactService. getAllContacts();
-}
 
+    @Autowired
+    private ContactServiceImpl contactService;
 
-@GetMapping("/contact/{cid}")
-public ResponseEntity<Contact> getContact(@PathVariable int cid){
-	return contactService.getContact(cid);
-}
-@DeleteMapping("/contact/{id}")
-public ResponseEntity<String> deleteContact(@PathVariable int cid){
-	return contactService.deleteContact(cid);
-}
+    public ContactRestController(ContactServiceImpl contactService){
+        this.contactService=  contactService;
+    }
 
+    @PostMapping("/contact")
+    public Contact upsert(@RequestBody Contact contact) {
+        return contactService.upsert(contact);
+    }
 
+    @GetMapping("/contacts")
+    public ResponseEntity<List<Contact>> getAllContacts() {
+        List<Contact> contactList = contactService.getAllContacts();
+        return ResponseEntity.ok().body(contactList);
+    }
+
+    @GetMapping("/contact/{cid}")
+    public ResponseEntity<Contact> getContact(@PathVariable int cid) {
+
+        return ResponseEntity.ok(contactService.getContact(cid));
+    }
+
+    @DeleteMapping("/contact/{cid}")
+    public ResponseEntity<String> deleteContact(@PathVariable Integer cid) {
+         contactService.deleteContact(cid);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("deleted");
+    }
 
 }
